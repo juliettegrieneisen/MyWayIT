@@ -128,5 +128,6 @@ function removeTopic(idx) {
 
 document.addEventListener("DOMContentLoaded", loadTopics);
 
-
+window.addTopic = addTopic;
+window.removeTopic = removeTopic;
 
