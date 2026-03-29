@@ -114,10 +114,8 @@ function addTopic() {
         alert("You cannot add an empty topic")
         return 
     }
-    topics.push({ name: value, checked: false});
-    renderTopics();
+   addDoc(collection(db, "topics"), { name: value, checked: false});
     input.value = "";
-    saveTopics();
 }
 
 function removeTopic(idx) {
