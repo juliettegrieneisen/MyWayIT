@@ -70,9 +70,7 @@ function renderTopics() {
         checkButton.style.color = topic.checked ? "pink" : "white";
         checkButton.style.marginRight = "10px";
         checkButton.onclick = () => {
-            topics[idx].checked = !topics[idx].checked;
-            saveTopics();
-            renderTopics();
+           updateDoc(doc(db, "topics", topic.id), {checked: !topic.checked});
         };
 
         const text = document.createElement("p");
