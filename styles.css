@@ -1,0 +1,91 @@
+html, body {height: 100%;
+    margin: 0;}
+
+* {color: whitesmoke;}
+
+body {background-color: #2a2835;
+    text-align: center;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    accent-color: #8dbbc9;}
+
+header {padding: 0.5rem;}
+
+main {flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: 1rem;}
+
+h1, h2 {color: white}
+
+p {font-size: 1rem;}
+
+a {color: #8dbbc9;}
+
+img {border-radius: 100px;
+    border: solid 5px whitesmoke;}
+
+ul {list-style-position: inside;
+    padding: 0;
+    text-align: center;}
+
+button {
+    background-color: #2a2835;
+    color: whitesmoke;
+    border: solid #8dbbc9 3px;
+    border-radius: 10px;
+    padding: 10px, 20px;
+    cursor: pointer;
+}
+
+#monMenu {
+    display: none;
+    list-style: none;
+    background-color: #25232e;
+    padding: 10px;
+    width: 100%;
+}
+#monMenu li a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 8px;
+}
+#monMenu li a:hover {
+    background-color: #2a2835;
+}
+
+.grid-container {display: grid;
+                grid-template-columns: 1fr;
+                gap: 1em;}
+
+.item {padding: 2em;
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #25232e;
+}
+
+#addTopicContainer {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+#topicsInput::placeholder {
+    color: black;
+}
+#topicsInput {
+    color: black;
+}
+
+#topics {
+    margin-bottom: 20px;
+}
+
+[draggable] {
+    cursor: grab;
+}
