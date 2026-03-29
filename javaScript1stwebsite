@@ -1,3 +1,18 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDjA4mIMeW69bXAPMU8OxYe9lechQla5sY",
+  authDomain: "myway-it.firebaseapp.com",
+  projectId: "myway-it",
+  storageBucket: "myway-it.firebasestorage.app",
+  messagingSenderId: "356990534691",
+  appId: "1:356990534691:web:2be4c1b24cf5c7159a5d96"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 function toggleMenu() {
     const menu = document.getElementById("monMenu");
 
@@ -79,14 +94,16 @@ function renderTopics() {
 
 
 function loadTopics() {
-    const oldTopics = localStorage.getItem(storageKey);
-    if (oldTopics) topics = JSON.parse(oldTopics);
+  onSnapshot(collection(db, "topics"), (snapshot) => {
+    topics = [];
+    snapshot.forEach((docSnap) => {
+      topics.push({ id: docSnap.id, ...docSnap.data() });
+    });
     renderTopics();
+  });
 }
 
 function saveTopics() {
-    const stringItems = JSON.stringify(topics);
-    localStorage.setItem(storageKey, stringItems);
 }
 
 function addTopic() {
