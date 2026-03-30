@@ -13,32 +13,23 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// ── Menu ──────────────────────────────────────────────────────────────────────
+
 function toggleMenu() {
     const menu = document.getElementById("monMenu");
-
-    if (menu.style.display === "block") {
-        menu.style.display = "none";
-    } else {
-        menu.style.display = "block";
-    }
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
 }
 
-
-
+// ── Checklist ─────────────────────────────────────────────────────────────────
 
 let topics = [];
-
 const topicsDiv = document.getElementById("topics");
-const topicInput = document.getElementById(topicsInput);
-const storageKey = "topics";
 
 function renderTopics() {
     topicsDiv.innerHTML = "";
-    topicsDiv.ondragover = (e) => {
-        e.preventDefault();
-    }
+    topicsDiv.ondragover = (e) => e.preventDefault();
 
-        topics.forEach((topic, idx) => {
+    topics.forEach((topic, idx) => {
         const container = document.createElement("div");
         container.style.marginBottom = "10px";
         container.draggable = true;
@@ -51,9 +42,7 @@ function renderTopics() {
         container.ondragend = () => {
             container.style.opacity = "1";
         };
-        container.addEventListener("dragover", (e) => {
-            e.preventDefault();
-        });
+        container.addEventListener("dragover", (e) => e.preventDefault());
         container.addEventListener("drop", (e) => {
             e.preventDefault();
             const fromIdx = parseInt(e.dataTransfer.getData("text/plain"));
@@ -61,7 +50,7 @@ function renderTopics() {
             if (fromIdx === toIdx) return;
             const moved = topics.splice(fromIdx, 1)[0];
             topics.splice(toIdx, 0, moved);
-            saveTopics();
+            saveOrder();
             renderTopics();
         });
 
@@ -70,60 +59,62 @@ function renderTopics() {
         checkButton.style.color = topic.checked ? "pink" : "white";
         checkButton.style.marginRight = "10px";
         checkButton.onclick = () => {
-           updateDoc(doc(db, "topics", topic.id), {checked: !topic.checked});
+            updateDoc(doc(db, "topics", topic.id), { checked: !topic.checked });
         };
 
         const text = document.createElement("p");
-        text.style.display ="inline";
+        text.style.display = "inline";
         text.style.marginRight = "10px";
         text.textContent = topic.name;
 
         const button = document.createElement("button");
         button.textContent = "✘";
-        button.onclick = () => removeTopic(idx);
+        button.onclick = () => removeTopic(topic.id);
 
         container.appendChild(checkButton);
         container.appendChild(text);
         container.appendChild(button);
-
         topicsDiv.appendChild(container);
     });
 }
 
+// Save the current array order to Firestore by updating each doc's `order` field
+async function saveOrder() {
+    const updates = topics.map((topic, idx) =>
+        updateDoc(doc(db, "topics", topic.id), { order: idx })
+    );
+    await Promise.all(updates);
+}
 
 function loadTopics() {
-  onSnapshot(collection(db, "topics"), (snapshot) => {
-    topics = [];
-    snapshot.forEach((docSnap) => {
-      topics.push({ id: docSnap.id, ...docSnap.data() });
+    onSnapshot(collection(db, "topics"), (snapshot) => {
+        topics = [];
+        snapshot.forEach((docSnap) => {
+            topics.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        // Sort by `order` field so position is preserved across devices & refreshes
+        topics.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        renderTopics();
     });
-    renderTopics();
-  });
 }
 
-function saveTopics() {
-}
-
-function addTopic() {
+async function addTopic() {
     const input = document.getElementById("topicsInput");
-    const value = input.value;
-
+    const value = input.value.trim();
     if (!value) {
-        alert("You cannot add an empty topic")
-        return 
+        alert("You cannot add an empty topic");
+        return;
     }
-   addDoc(collection(db, "topics"), { name: value, checked: false});
+    // New topic goes to the end
+    await addDoc(collection(db, "topics"), { name: value, checked: false, order: topics.length });
     input.value = "";
 }
 
-function removeTopic(idx) {
-    topics.splice(idx, 1);
-    renderTopics();
-    saveTopics();
+async function removeTopic(id) {
+    await deleteDoc(doc(db, "topics", id));
 }
 
-document.addEventListener("DOMContentLoaded", loadTopics);
+document.getElementById("menuBtn").addEventListener("click", toggleMenu);
+document.getElementById("addTopicBtn").addEventListener("click", addTopic);
 
-window.addTopic = addTopic;
-window.removeTopic = removeTopic;
-
+loadTopics();
